@@ -1,0 +1,14 @@
+# Phase 1 — SMS webhook + LLM
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+twilio>=9.0.0
+anthropic>=0.39.0
+boto3>=1.35.0
+python-dotenv>=1.0.0
+
+# Lambda adapter (optional, for deploy)
+mangum>=0.17.0
+
+# Tests
+pytest>=8.0.0
+httpx>=0.27.0
