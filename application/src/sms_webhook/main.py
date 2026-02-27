@@ -3,7 +3,17 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 from typing import Any
+
+from dotenv import load_dotenv
+
+# Load .env when running locally (application/.env or repo root .env / .env.local)
+_app_dir = Path(__file__).resolve().parent.parent.parent  # application/
+_repo_root = _app_dir.parent
+load_dotenv(_app_dir / ".env")
+load_dotenv(_repo_root / ".env")
+load_dotenv(_repo_root / ".env.local")
 
 from fastapi import FastAPI, Request, Form, Response
 
@@ -26,24 +36,13 @@ def _validate_and_parse(request: Request, form: dict[str, Any]) -> tuple[str, st
 
 
 @app.post("/api/sms/inbound")
-async def sms_inbound(
-    request: Request,
-    From: str = Form(None, alias="From"),
-    Body: str = Form("", alias="Body"),
-) -> Response:
-    """
-    Twilio calls this with form data. We need the raw form for signature validation,
-    so we also accept request and rebuild form from body for validation.
-    """
-    # Build form dict for signature validation (Twilio sends application/x-www-form-urlencoded)
-    body_bytes = await request.body()
-    form: dict[str, Any] = {}
-    if body_bytes:
-        from urllib.parse import parse_qs
-        parsed = parse_qs(body_bytes.decode("utf-8"), keep_blank_values=True)
-        form = {k: v[0] if len(v) == 1 else v for k, v in parsed.items()}
-    from_phone = form.get("From") or From or ""
-    msg_body = (form.get("Body") or Body or "").strip()
+async def sms_inbound(request: Request) -> Response:
+    """Twilio SMS inbound webhook (application/x-www-form-urlencoded)."""
+    # Read form data once; FastAPI parses application/x-www-form-urlencoded for us.
+    form_multi = await request.form()
+    form: dict[str, Any] = dict(form_multi)
+    from_phone = (form.get("From") or "").strip()
+    msg_body = (form.get("Body") or "").strip()
 
     if not from_phone:
         return Response(status_code=400, content="Missing From")

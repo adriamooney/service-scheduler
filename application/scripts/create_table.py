@@ -3,8 +3,17 @@
 
 import os
 import sys
+from pathlib import Path
 
 import boto3
+from dotenv import load_dotenv
+
+# Load .env from application/ or repo root so AWS_REGION etc. are set
+_app_dir = Path(__file__).resolve().parent.parent
+_repo_root = _app_dir.parent
+load_dotenv(_app_dir / ".env")
+load_dotenv(_repo_root / ".env")
+load_dotenv(_repo_root / ".env.local")
 
 TABLE_NAME = os.environ.get("DYNAMODB_TABLE_NAME", "sms_conversations")
 

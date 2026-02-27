@@ -5,6 +5,8 @@ from __future__ import annotations
 import os
 from typing import Any
 
+import sys
+
 from twilio.request_validator import RequestValidator
 from twilio.rest import Client
 
@@ -48,5 +50,7 @@ def send_sms(to_phone: str, body: str) -> str | None:
         from_number = get_from_number()
         msg = client.messages.create(to=to_phone, from_=from_number, body=body)
         return msg.sid
-    except Exception:
+    except Exception as exc:  # pragma: no cover - log and swallow in Phase 1
+        # Temporary debug print so we can see why Twilio send failed
+        print(f"[twilio_handler.send_sms] Failed to send SMS: {exc!r}", file=sys.stderr)
         return None

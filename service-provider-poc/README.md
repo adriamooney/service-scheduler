@@ -26,14 +26,13 @@ Phase 1: receive an SMS at a Twilio number and respond via an LLM (Claude). No q
 
 3. **DynamoDB:**
 
-   - **Option A — AWS DynamoDB:** Do **not** set `DYNAMODB_ENDPOINT_URL`. Set `AWS_REGION` in `.env` (e.g. `us-west-2`). Ensure AWS credentials are available (e.g. `aws configure` or `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` in `.env`). Then create the table:
-     ```bash
-     python scripts/create_table.py
-     ```
-     This creates table `sms_conversations` (or `DYNAMODB_TABLE_NAME`) with partition key `customer_phone` (String), on-demand billing.
+   - **Option A — AWS:** Create a table in the AWS console (or via IaC):
+     - Table name: `sms_conversations` (or set `DYNAMODB_TABLE_NAME`)
+     - Partition key: `customer_phone` (String)
+     - No sort key. Set `AWS_REGION` in `.env`.
    - **Option B — Local:** Run DynamoDB Local (e.g. `docker run -p 8000:8000 amazon/dynamodb-local`) and set in `.env`:
      - `DYNAMODB_ENDPOINT_URL=http://localhost:8000`
-     - Run `python scripts/create_table.py` to create the table against the local endpoint.
+     - Create the table with the same schema (e.g. using `aws dynamodb create-table` against the local endpoint).
 
 ## Run locally
 

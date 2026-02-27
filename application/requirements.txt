@@ -1,6 +1,7 @@
 # Phase 1 — SMS webhook + LLM
 fastapi>=0.115.0
 uvicorn[standard]>=0.32.0
+python-multipart>=0.0.9
 twilio>=9.0.0
 anthropic>=0.39.0
 boto3>=1.35.0
