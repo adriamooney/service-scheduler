@@ -40,8 +40,9 @@ def test_health():
     "ANTHROPIC_API_KEY": "sk-test",
     "DYNAMODB_TABLE_NAME": "test_conversations",
 })
+@patch("src.sms_webhook.throttling.check_reply_allowed", return_value=("ALLOW_FULL_REPLY", None))
 @patch("src.sms_webhook.twilio_handler.send_sms")
-@patch("src.sms_webhook.llm.reply")
+@patch("src.sms_webhook.llm.reply_with_action")
 @patch("src.sms_webhook.conversation.add_user_message")
 @patch("src.sms_webhook.conversation.add_assistant_message")
 @patch("src.sms_webhook.conversation.get_messages_for_llm")
@@ -51,9 +52,10 @@ def test_inbound_flow(
     mock_add_user,
     mock_llm_reply,
     mock_send_sms,
+    mock_throttle,
 ):
     mock_get_messages.return_value = [{"role": "user", "content": "Hi"}]
-    mock_llm_reply.return_value = "What do you need removed?"
+    mock_llm_reply.return_value = ("What do you need removed?", None)
     mock_send_sms.return_value = "SM123"
 
     # Don't validate signature in test (no TWILIO_WEBHOOK_URL)
